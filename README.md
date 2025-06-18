@@ -33,4 +33,4 @@ Use `srun`, `squeue`, etc., to manage jobs.
 
 ---
 
-Made with ❤️ by Sanket Rokade
+Made with ❤️ by Sanket
