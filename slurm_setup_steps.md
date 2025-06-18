@@ -79,8 +79,42 @@ rpmbuild -ta slurm-24.11.0-0rc2.tar.bz2
 cd ~/rpmbuild/RPMS/x86_64/
 sudo yum --nogpgcheck localinstall slurm-*
 ```
+## Part 4: Configure slurmdbd (Master only)
 
-## Part 4: Configure SLURM
+### Create DB and User
+```bash
+mysql -u root -p
+```
+```sql
+CREATE DATABASE slurm_acct_db;
+GRANT ALL ON slurm_acct_db.* TO 'slurm'@'localhost' IDENTIFIED BY 'StrongPassword';
+FLUSH PRIVILEGES;
+EXIT;
+```
+### Configure /etc/slurm/slurmdbd.conf
+```ini
+AuthType=auth/munge
+DbdHost=localhost
+DbdPort=6819
+SlurmUser=slurm
+DebugLevel=4
+LogFile=/var/log/slurm/slurmdbd.log
+PidFile=/run/slurmdbd/slurmdbd.pid
+StorageType=accounting_storage/mysql
+StorageHost=localhost
+StorageLoc=slurm_acct_db
+StorageUser=slurm
+StoragePass=StrongPassword
+
+PurgeEventAfter=12months
+PurgeJobAfter=12months
+PurgeResvAfter=2months
+PurgeStepAfter=2months
+PurgeSuspendAfter=1month
+PurgeTXNAfter=12months
+PurgeUsageAfter=12months
+```
+## Part 5: Configure SLURM
 
 1. Create `/etc/slurm/slurmdbd.conf` and `/etc/slurm/slurm.conf`.
 2. Set permissions and logs:
