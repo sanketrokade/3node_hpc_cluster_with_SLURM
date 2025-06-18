@@ -68,8 +68,8 @@ sudo systemctl start mariadb
 ```bash
 sudo dnf config-manager --set-enabled crb
 sudo dnf install epel-release epel-next-release -y
-sudo yum install openssl-devel pam-devel rpm-build numactl-devel hwloc-devel ...
-sudo yum install autoconf automake mariadb-devel munge-devel ...
+sudo yum install openssl openssl-devel pam-devel rpm-build numactl numactl-devel hwloc hwloc-devel lua lua5.1-luv-devel readline-devel rrdtool-devel ncurses-devel man2html libibmad libibumad -y
+sudo yum install autoconf automake mariadb-devel munge-devel perl perl-devel dbus dbus-devel -y
 ```
 
 ### 2. Build SLURM from source
