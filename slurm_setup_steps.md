@@ -81,7 +81,7 @@ sudo yum --nogpgcheck localinstall slurm-*
 ```
 ## Part 4: Configure slurmdbd (Master only)
 
-### Create DB and User
+### 1. Create DB and User
 ```bash
 mysql -u root -p
 ```
@@ -91,7 +91,7 @@ GRANT ALL ON slurm_acct_db.* TO 'slurm'@'localhost' IDENTIFIED BY 'StrongPasswor
 FLUSH PRIVILEGES;
 EXIT;
 ```
-### Configure /etc/slurm/slurmdbd.conf
+### 2. Configure /etc/slurm/slurmdbd.conf
 ```ini
 AuthType=auth/munge
 DbdHost=localhost
@@ -114,36 +114,75 @@ PurgeSuspendAfter=1month
 PurgeTXNAfter=12months
 PurgeUsageAfter=12months
 ```
-## Part 5: Configure SLURM
-
-1. Create `/etc/slurm/slurmdbd.conf` and `/etc/slurm/slurm.conf`.
-2. Set permissions and logs:
+### 3. Run
 ```bash
-sudo mkdir /var/log/slurm /var/spool/slurmctld
-sudo chown -R slurm:slurm /var/log/slurm /var/spool/slurmctld
+sudo mkdir -p /var/log/slurm /run/slurmdbd
+sudo chown -R slurm:slurm /var/log/slurm /run/slurmdbd
 sudo chmod 600 /etc/slurm/slurmdbd.conf
+sudo systemctl enable --now slurmdbd
+```
+## ⚙️ Part 6: Configure `slurm.conf` (All Nodes)
+
+To configure SLURM, we need to create the `slurm.conf` file which will define the compute nodes, partitions, and general behavior of the SLURM controller and daemons.
+
+### 🛠️ Generate the SLURM Configuration
+
+Use the official configurator:
+
+👉 [SLURM Config Generator](https://slurm.schedmd.com/configurator.easy.html)
+
+You can use the example below or generate your own based on your setup.
+
+### 📝 Example `/etc/slurm/slurm.conf`
+
+```ini
+ClusterName=demo_cluster
+SlurmctldHost=master
+
+SlurmUser=slurm
+StateSaveLocation=/var/spool/slurmctld
+SlurmdSpoolDir=/var/spool/slurmd
+SlurmctldPidFile=/run/slurmctld.pid
+SlurmdPidFile=/run/slurmd.pid
+ProctrackType=proctrack/cgroup
+TaskPlugin=task/affinity
+
+ReturnToService=1
+SchedulerType=sched/backfill
+SelectType=select/cons_tres
+
+SlurmctldLogFile=/var/log/slurm/slurmctld.log
+SlurmdLogFile=/var/log/slurm/slurmd.log
+
+NodeName=node1 NodeAddr=192.168.230.129 CPUs=2 State=UNKNOWN
+NodeName=node2 NodeAddr=192.168.230.130 CPUs=2 State=UNKNOWN
+PartitionName=debug Nodes=node1,node2 Default=YES MaxTime=INFINITE State=UP
 ```
 
-3. Start Services:
+> ⚠️ **Note**: Replace `NodeAddr` IPs and `CPUs` count as per your actual hardware and network setup.
+
+### 📤 Copy `slurm.conf` to All Nodes
+
+After creating the config file on the master node:
+
 ```bash
-sudo systemctl start slurmdbd
-sudo systemctl enable slurmdbd
-
-sudo systemctl start slurmctld
-sudo systemctl enable slurmctld
+scp /etc/slurm/slurm.conf sanket@node1:/tmp/
+scp /etc/slurm/slurm.conf sanket@node2:/tmp/
 ```
 
-4. On compute nodes:
+Then move it to the correct location on each compute node:
+
 ```bash
-sudo mkdir /var/spool/slurmd
-sudo chown slurm: /var/spool/slurmd
-sudo systemctl start slurmd
-sudo systemctl enable slurmd
+sudo mv /tmp/slurm.conf /etc/slurm/
 ```
 
-## Done! 🎉
-Run:
+Ensure correct permissions:
+
 ```bash
-sinfo
+sudo chown slurm:slurm /etc/slurm/slurm.conf
 ```
-To check cluster status.
+
+### 📦 Done!
+
+Your SLURM configuration file is now ready and distributed to all nodes. Proceed to the next part to set up runtime directories and launch services.
+
