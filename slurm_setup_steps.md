@@ -187,8 +187,8 @@ sudo chown slurm:slurm /etc/slurm/slurm.conf
 Your SLURM configuration file is now ready and distributed to all nodes. Proceed to the next part to set up runtime directories and launch services.
 ==========================================================================================================================================================
 
-sudo mkdir -p /var/spool/slurmctld
-sudo chown slurm:slurm /var/spool/slurmctld
-sudo touch /var/log/slurm/slurmctld.log
-sudo chown slurm:slurm /var/log/slurm/slurmctld.log
+sudo mkdir -p /var/spool/slurmd <br>
+sudo chown slurm:slurm /var/spool/slurmd<br>
+sudo touch /var/log/slurm/slurmd.log<br>
+sudo chown slurm:slurm /var/log/slurm/slurmd.log<br>
 
