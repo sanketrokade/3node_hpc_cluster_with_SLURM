@@ -9,9 +9,7 @@ This guide provides a **step-by-step, production-grade** setup of a 3-node HPC c
 
 ```
 3node_hpc_slurm_cluster/
-├── README.md               # Complete step-by-step installation and configuration guide
-├── scripts/                # Automation and utility scripts (Optional)
-└── configs/                # Sample config files for SLURM and Munge
+└── README.md               # Complete step-by-step installation and configuration guide
 ```
 
 ---
